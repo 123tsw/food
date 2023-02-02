@@ -104,8 +104,14 @@ import { ElMessage } from 'element-plus'
         if (!formEl) return
         formEl.validate((valid, fields) => {
           if (valid) {
-            console.log('submit!')
-            console.log( this.form )
+            // console.log('submit!')
+            // console.log( this.form )
+            this.$store.dispatch('shops/update',this.form).then((res)=>{
+              if(res.data.errcode === 0){
+                ElMessage.success('更新成功')
+              }
+
+            })
           } else {
             console.log('error submit!', fields)
           }
@@ -144,9 +150,24 @@ import { ElMessage } from 'element-plus'
       handleToUpload(options){
         // console.log(options.file);//这个就是上窜的文件
         this.form.file =options.file; //这个是上传文件的
-        //做预览
+        //做预览的，获取图片源码
         this.imageUrl = URL.createObjectURL(options.file)
       }
+    },
+    created(){
+      this.$store.dispatch('shops/list',{username:this.$store.state.users.username}).then((res)=>{
+        // console.log(res.data); //返回了数组，店铺信息是数组第一项
+        //回显，怎么刷新都不变
+        if(res.data.length){
+          let ret =res.data[0]
+          this.form.name =ret.name;
+          this.form.address =ret.address;
+          this.form.telphone =ret.telphone;
+          this.imageUrl =ret.fileurl;
+          this.form.dynamictags = JSON.parse(ret.dynamictags);
+          this.form.file = 'origin';  //校验通过
+        }
+      })
     }
   }
 </script>
