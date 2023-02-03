@@ -95,6 +95,7 @@ import { ArrowDown } from '@element-plus/icons-vue'
         //清空状态管理中的token，持久化就会清空
          this.$store.commit('users/clearToken');
          this.$router.push('/login');
+         window.location.href = '/login'; //跳转页面病刷新页面
       }
     }
   }

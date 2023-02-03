@@ -4,10 +4,13 @@
       <el-button type="primary" @click="handleDialog">+ 添加</el-button>
     </div>
     <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
-      <el-tab-pane v-for="item in dynamictags" :key="item.title" :label="item.title" :name="item.title">
+      <el-tab-pane v-for="item,index in dynamictags" :key="item.title" :label="item.title" :name="item.title">
+        <!-- 空状态 -->
+        <el-empty description="description" 
+        v-if="item.list.length === 0"/>
         <!-- 选项卡 -->
-        <el-row gutter="20">
-          <el-col :span="6" v-for="item2 in item.list" :key="item2.name">
+        <el-row v-else gutter="20">
+          <el-col :span="6" v-for="item2,index2 in item.list" :key="item2.name">
             <el-card :body-style="{ padding: '0px' }">
             <img
               src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
@@ -17,16 +20,22 @@
               <h2>{{item2.name}}</h2>
               <div class="bottom">
                 <div>
-                  <span>价格：{{ item2.price }}</span>
+                  <span>价格：{{ item2.price }}</span><br>
                   <span>描述：{{ item2.info }}</span>
                 </div>
-                <el-button style="float:right;margin-bottom:20px;" type="danger" icon="Delete" circle class="button"></el-button>
+                <!-- 删除菜品气泡弹出框 -->
+                <el-popconfirm title="是否要删除当前菜品" confirm-button-text="确认" cancel-button-text="取消" @confirm="removeFood(index,index2)">
+                  <template #reference>
+                    <el-button style="float:right;margin-bottom:20px;" type="danger" icon="Delete" circle />
+                  </template>
+                </el-popconfirm>
+                
               </div>
             </div>
           </el-card>
         </el-col>
         <!-- 第二个 -->
-        <el-col :span="6">
+        <!-- <el-col :span="6">
             <el-card :body-style="{ padding: '0px' }">
             <img
               src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png"
@@ -40,7 +49,7 @@
               </div>
             </div>
           </el-card>
-        </el-col>
+        </el-col> -->
   </el-row>
       </el-tab-pane>
     </el-tabs>
@@ -156,6 +165,18 @@ import _ from 'lodash'
             console.log('error submit!', fields)
           }
         });
+      },
+      removeFood(index,index2){
+        console.log(index,index2);
+        this.dynamictags[index].list.splice(index2,1)
+        this.$store.dispatch('shops/update', {
+          dynamictags: this.dynamictags,
+          username: this.$store.state.users.username
+        }).then((res)=>{
+          if( res.data.errcode === 0 ) {
+            ElMessage.success('删除菜品成功')
+          }
+        })
       }
     },
     created(){
